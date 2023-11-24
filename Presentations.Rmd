@@ -1,0 +1,178 @@
+---
+title: "Shopping Trends"
+author: "Marlen Gonzalez"
+date: "2023-11-27"
+output: slidy_presentation
+---
+# Introduction
+I’ve always been the consumer but never looked at shopping from the point of view from the business side of it. I don’t usually go to a store and wonder what the main selling item is or what do people need the most of. I found this data set from Kaggle to open my eyes and learn a little bit more about what we as the consumer usually buy and who’s the main one buying things. 
+
+
+# Packages Used
+```{r}
+#using this to tidy and filter the data with dplyr
+library(tidyverse)
+#using this to draw plots
+library(ggplot2)
+```
+
+
+# Data at a glimpse
+```{r, echo = FALSE}
+shopping_data <- read_csv("shopping_trends.csv", show_col_types = FALSE)
+
+shopping_data <- rename_with(shopping_data, ~ tolower(gsub(" ", "_", .x, fixed = TRUE)))
+
+shopping_data <- rename(shopping_data, purchase_amount = 'purchase_amount_(usd)')
+
+
+glimpse(shopping_data)
+
+```
+From just a glimpse we see a lot of columns of information. 
+
+# Questions
+- What age is the main consumer?
+- What gender is the main consumer?
+- What are they buying the most of, item and category?
+- Is there a higher volume of sales in a specific state?
+- What is the max amount people purchase?
+- Do consumers go for a specific color?
+- What are people mainly using to purchase items?
+- What is the average of what people are spending for their age?
+
+# Key Terms
+- customer_id 
+- age
+- gender
+- item_purchased
+- category
+- purchase_amount
+- location
+- size
+- color
+- season
+- review_rating
+- subscription_status
+- payment_method
+- shipping_type
+- discount_applied
+- promo_code_used
+- previous_purchases
+- preferred_payment_method
+- frequency_of_purchases
+
+# How much are the genders spending?
+```{r, echo = FALSE}
+ 
+table_items <- shopping_data %>% 
+  count(item_purchased) %>% 
+  arrange(desc(n))
+
+table_items
+
+
+```
+
+
+
+# Ages
+```{r, echo = FALSE}
+
+table_age <- shopping_data %>% 
+  count(age) %>% 
+  arrange(desc(n))
+
+table_age
+
+shopping_data %>%
+  group_by(age) %>%
+  summarize(avg = mean(purchase_amount)) %>% arrange(desc(avg))
+
+```
+I was taken aback because I expected young adults to be the highest spenders.
+
+# Gender
+```{r, echo = FALSE}
+
+shopping_data %>%
+  group_by(gender) %>%
+  summarize(avg = mean(purchase_amount))
+
+```
+I saw that coming but very close in average spending.
+
+# Size 
+```{r, echo = FALSE}
+table_size <- shopping_data %>% 
+  count(size) %>% 
+  arrange(desc(n))
+
+table_size
+
+```
+
+No surprise there, medium being the size mainly purchased!
+
+# Location
+```{r, echo = FALSE}
+ 
+table_location <- shopping_data %>% 
+  count(location) %>% 
+  arrange(desc(n))
+
+table_location
+
+
+```
+
+Montana is the main state buying in this data set.
+
+
+# Color
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(y= color, fill = gender)) + geom_bar(position = "dodge")
+       
+```
+
+# Item Purchased by gender
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(y= item_purchased, fill = gender)) + geom_bar(position = "dodge")
+       
+```
+Most item bought is pants by men!
+
+# Category by season
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(y= season, fill = category)) + geom_bar(position = "dodge")
+       
+```
+
+The season people buy the most is spring and it's clothes!
+
+# What a gender keeps coming back for more purchases
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(y= frequency_of_purchases, fill = gender )) + geom_bar(position = "dodge")
+       
+```
+Every 3 months, men are the ones coming back to shop.
+
+
+# Way of payment
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(x = payment_method)) + geom_bar()
+
+```
+Credit card was the mostly used form of payment
+
+# What product has the best reviews
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(y= review_rating, x = category, fill = category))+ geom_boxplot()
+
+```
+This was just to see the difference in reviews
+
+
+# Summary
+
+From this data set it is surprisingly men who are shopping the most. If I was a retail store I would continue to market to that gender. 
