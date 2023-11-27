@@ -5,11 +5,13 @@ date: "2023-11-27"
 output: slidy_presentation
 ---
 # Introduction
-I’ve always been the consumer but never looked at shopping from the point of view from the business side of it. I don’t usually go to a store and wonder what the main selling item is or what do people need the most of. I found this data set from Kaggle to open my eyes and learn a little bit more about what we as the consumer usually buy and who’s the main one buying things. 
+I’ve always been the consumer but never looked at shopping from the point of view from the business side of it. I don’t usually go to a store and wonder what the popular selling item is or what do people need the most of. 
+
+The dataset is from [Kaggle](https://www.kaggle.com/datasets/iamsouravbanerjee/customer-shopping-trends-dataset).
 
 
 # Packages Used
-```{r}
+```{r, message = FALSE}
 #using this to tidy and filter the data with dplyr
 library(tidyverse)
 #using this to draw plots
@@ -31,15 +33,6 @@ glimpse(shopping_data)
 ```
 From just a glimpse we see a lot of columns of information. 
 
-# Questions
-- What age is the main consumer?
-- What gender is the main consumer?
-- What are they buying the most of, item and category?
-- Is there a higher volume of sales in a specific state?
-- What is the max amount people purchase?
-- Do consumers go for a specific color?
-- What are people mainly using to purchase items?
-- What is the average of what people are spending for their age?
 
 # Key Terms
 - customer_id 
@@ -62,7 +55,20 @@ From just a glimpse we see a lot of columns of information.
 - preferred_payment_method
 - frequency_of_purchases
 
-# How much are the genders spending?
+
+# Questions
+- How much are people spending? What are their ages?
+- What gender is the main consumer?
+- What sizes are in demand?
+- What are they buying the most of, item and category?
+- Is there a higher volume of sales in a specific state?
+- Do consumers go for a specific color?
+- What are buyers using as a way of payment?
+- What are best/worst reviewed category?
+
+
+
+# Items mainly bought:
 ```{r, echo = FALSE}
  
 table_items <- shopping_data %>% 
@@ -74,9 +80,19 @@ table_items
 
 ```
 
+# Items least bought:
+```{r, echo = FALSE}
+ 
+table_items <- shopping_data %>% 
+  count(item_purchased) %>% 
+  arrange(n)
+
+table_items
 
 
-# Ages
+```
+
+# What is the average of what people are spending for their age?
 ```{r, echo = FALSE}
 
 table_age <- shopping_data %>% 
@@ -90,9 +106,9 @@ shopping_data %>%
   summarize(avg = mean(purchase_amount)) %>% arrange(desc(avg))
 
 ```
-I was taken aback because I expected young adults to be the highest spenders.
 
-# Gender
+
+# What gender is the main consumer?
 ```{r, echo = FALSE}
 
 shopping_data %>%
@@ -100,9 +116,9 @@ shopping_data %>%
   summarize(avg = mean(purchase_amount))
 
 ```
-I saw that coming but very close in average spending.
 
-# Size 
+
+# What sizes are in demand?
 ```{r, echo = FALSE}
 table_size <- shopping_data %>% 
   count(size) %>% 
@@ -112,9 +128,8 @@ table_size
 
 ```
 
-No surprise there, medium being the size mainly purchased!
 
-# Location
+# Is there a higher volume of sales in a specific state?
 ```{r, echo = FALSE}
  
 table_location <- shopping_data %>% 
@@ -126,53 +141,64 @@ table_location
 
 ```
 
-Montana is the main state buying in this data set.
-
-
-# Color
+# continued (least)
 ```{r, echo = FALSE}
-ggplot(data = shopping_data, aes(y= color, fill = gender)) + geom_bar(position = "dodge")
+ 
+table_location <- shopping_data %>% 
+  count(location) %>% 
+  arrange(n)
+
+table_location
+
+
+```
+
+
+# Do consumers go for a specific color?
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(y= color, fill = gender)) + facet_wrap(~ gender) + geom_bar() + labs(title = "Colors by gender", x = "Count", y = "Color") + theme(legend.position="none")
        
 ```
 
-# Item Purchased by gender
+# What are they buying the most of?
 ```{r, echo = FALSE}
-ggplot(data = shopping_data, aes(y= item_purchased, fill = gender)) + geom_bar(position = "dodge")
-       
-```
-Most item bought is pants by men!
-
-# Category by season
-```{r, echo = FALSE}
-ggplot(data = shopping_data, aes(y= season, fill = category)) + geom_bar(position = "dodge")
+ggplot(data = shopping_data, aes(y= item_purchased, fill = gender)) + facet_wrap(~ gender) + geom_bar(position = "dodge") + labs(title = "Purchases by gender", x = "Count", y = "Item Purchased") + theme(legend.title=element_blank())
        
 ```
 
-The season people buy the most is spring and it's clothes!
 
-# What a gender keeps coming back for more purchases
+# Purchases by season
 ```{r, echo = FALSE}
-ggplot(data = shopping_data, aes(y= frequency_of_purchases, fill = gender )) + geom_bar(position = "dodge")
+ggplot(shopping_data, aes(purchase_amount, color = season)) +
+  geom_freqpoly() + labs(title = "Purchases by season", x = "Purchase Amount", y = "Count") + theme(legend.title=element_blank())
        
 ```
-Every 3 months, men are the ones coming back to shop.
 
 
-# Way of payment
+# Purchases by category
 ```{r, echo = FALSE}
-ggplot(data = shopping_data, aes(x = payment_method)) + geom_bar()
+
+ggplot(shopping_data, aes(purchase_amount, color = category)) +
+  geom_freqpoly() + labs(title = "Purchases by category", x = "Purchase Amount", y = "Count") + theme(legend.title=element_blank())
+```
+
+
+# What are buyers using as a way of payment?
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(x = payment_method, fill = payment_method)) + geom_bar() + theme(legend.position="none") + labs(title = "Purchases by payment", x = "Payment Method", y = "Count")
 
 ```
-Credit card was the mostly used form of payment
 
-# What product has the best reviews
+
+
+# What categories have the best reviews?
 ```{r, echo = FALSE}
-ggplot(data = shopping_data, aes(y= review_rating, x = category, fill = category))+ geom_boxplot()
+ggplot(data = shopping_data, aes(y= review_rating, x = category, fill = category)) + geom_boxplot() + labs(title = "Purchases by payment", x = "Review Rating", y = "Category") + theme(legend.title=element_blank())
 
 ```
-This was just to see the difference in reviews
+
 
 
 # Summary
 
-From this data set it is surprisingly men who are shopping the most. If I was a retail store I would continue to market to that gender. 
+Understand your consumer.
