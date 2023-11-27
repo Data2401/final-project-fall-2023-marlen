@@ -168,7 +168,7 @@ ggplot(data = shopping_data, aes(y= item_purchased, fill = gender)) + facet_wrap
 
 
 # Purchases by season
-```{r, echo = FALSE}
+```{r, echo = FALSE, message= FALSE}
 ggplot(shopping_data, aes(purchase_amount, color = season)) +
   geom_freqpoly() + labs(title = "Purchases by season", x = "Purchase Amount", y = "Count") + theme(legend.title=element_blank())
        
@@ -176,7 +176,7 @@ ggplot(shopping_data, aes(purchase_amount, color = season)) +
 
 
 # Purchases by category
-```{r, echo = FALSE}
+```{r, echo = FALSE, message= FALSE}
 
 ggplot(shopping_data, aes(purchase_amount, color = category)) +
   geom_freqpoly() + labs(title = "Purchases by category", x = "Purchase Amount", y = "Count") + theme(legend.title=element_blank())
