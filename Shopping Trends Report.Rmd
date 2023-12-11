@@ -1,0 +1,217 @@
+---
+title: "Shopping Trends"
+author: "Marlen Gonzalez"
+date: "2023-12-11"
+output: html_document
+---
+# Introduction
+I’ve always been a consumer but never looked at shopping from the point of view of the business side of it. I don’t usually go to a store and wonder what the popular selling item is or what people need the most. This dataset is AI generated but it was very useful to understand how a store would have to understand their consumers. 
+
+The dataset is from [Kaggle](https://www.kaggle.com/datasets/iamsouravbanerjee/customer-shopping-trends-dataset).
+
+The data set generated information for ages 18 and above and from all 50 states.
+
+# Packages Used
+```{r, message = FALSE}
+#using this to tidy and filter the data with dplyr
+library(tidyverse)
+#using this to draw plots
+library(ggplot2)
+```
+
+
+# Data at a glimpse
+```{r, echo = FALSE}
+shopping_data <- read_csv("shopping_trends.csv", show_col_types = FALSE)
+
+shopping_data <- rename_with(shopping_data, ~ tolower(gsub(" ", "_", .x, fixed = TRUE)))
+
+shopping_data <- rename(shopping_data, purchase_amount = 'purchase_amount_(usd)')
+
+
+glimpse(shopping_data)
+
+```
+From just a glimpse we see a lot of columns of information. Fortunately the information is straightforward with very basic names and variables. The variables had spaces that would make it inconvenient to use in R. I renamed the variables to avoid the hassle.
+
+
+# Key Terms
+- customer_id 
+- age
+- gender
+- item_purchased
+- category
+- purchase_amount
+- location
+- size
+- color
+- season
+- review_rating
+- subscription_status
+- payment_method
+- shipping_type
+- discount_applied
+- promo_code_used
+- previous_purchases
+- preferred_payment_method
+- frequency_of_purchases
+
+After looking through the data I started to see questions that I would have as a seller interested in making sales and trying to understand their consumer. 
+
+- How much are people spending? What are their ages?
+- What gender is the main consumer?
+- What sizes are in demand?
+- What are they buying the most of, item and category?
+- Is there a higher volume of sales in a specific state?
+- Do consumers go for a specific color?
+- What are buyers using as a way of payment?
+- What are best/worst reviewed category?
+
+
+
+# Items mainly bought:
+```{r, echo = FALSE}
+ 
+table_items <- shopping_data %>% 
+  count(item_purchased) %>% 
+  arrange(desc(n))
+
+table_items
+
+
+```
+Now here I started off slowly going through items mainly bought and I noticed that blouse jewelry pants were the main selling items.
+
+
+
+# Items least bought:
+```{r, echo = FALSE}
+ 
+table_items <- shopping_data %>% 
+  count(item_purchased) %>% 
+  arrange(n)
+
+table_items
+
+
+```
+While these items: backpacks gloves were the least sellers.  
+
+# What is the average of what people are spending for their age?
+```{r, echo = FALSE}
+
+table_age <- shopping_data %>% 
+  count(age) %>% 
+  arrange(desc(n))
+
+table_age
+
+shopping_data %>%
+  group_by(age) %>%
+  summarize(avg = mean(purchase_amount)) %>% arrange(desc(avg))
+
+```
+The first table show the person’s age that spent the most at a store (69 spending ,88 dollars) while the other table shows on average people in their early 50s and late 40s were spending the most at more than 65 dollars.
+
+
+
+# What gender is the main consumer?
+```{r, echo = FALSE}
+
+shopping_data %>%
+  group_by(gender) %>%
+  summarize(avg = mean(purchase_amount))
+
+```
+
+On the gender side of it females were on average the most to spend. I will note that the averages were very close! 
+
+# What sizes are in demand?
+```{r, echo = FALSE}
+table_size <- shopping_data %>% 
+  count(size) %>% 
+  arrange(desc(n))
+
+table_size
+
+```
+The most purchased size was Medium and least purchased size was Extra Large.
+
+# Is there a higher volume of sales in a specific state?
+```{r, echo = FALSE}
+ 
+table_location <- shopping_data %>% 
+  count(location) %>% 
+  arrange(desc(n))
+
+table_location
+
+
+```
+
+I was able to see what state was the main buyer and it was Montana. 
+
+
+# continued (least)
+```{r, echo = FALSE}
+ 
+table_location <- shopping_data %>% 
+  count(location) %>% 
+  arrange(n)
+
+table_location
+
+
+```
+The least states to buy was Kansas and Rhode Island.
+
+# Do consumers go for a specific color?
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(y= color, fill = gender)) + facet_wrap(~ gender) + geom_bar() + labs(title = "Colors by gender", x = "Count", y = "Color") + theme(legend.position="none")
+       
+```
+I took into account that color is a main selling point in buying an Item but I also wanted see by gender so I graphed it classifying the colors and separating them by their genders like shown and I noticed that Silver was the main colors that men chose. While women chose yellow and I was also able to see the least color chosen by them which was brown, magenta and pink for men and turquoise and beige for women.
+
+
+# What are they buying the most of?
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(y= item_purchased, fill = gender)) + facet_wrap(~ gender) + geom_bar(position = "dodge") + labs(title = "Purchases by gender", x = "Count", y = "Item Purchased") + theme(legend.title=element_blank())
+       
+```
+Continuing on gender I wanted to see what the most item purchased by each was, so I also did another graph showing that. Pants was by far the most purchased item by men. For women it was blouses. 
+
+# Purchases by season
+```{r, echo = FALSE, message= FALSE}
+ggplot(shopping_data, aes(purchase_amount, color = season)) +
+  geom_freqpoly() + labs(title = "Purchases by season", x = "Purchase Amount", y = "Count") + theme(legend.title=element_blank())
+       
+```
+Next, I wanted to see the purchases by season so I did these graphs showing the purchase amount by the season I did notice that it was very similar so I tried doing another graph showing it by categories to see if there was any differences and I did see that there were more purchases on clothing compared to outerwear.
+
+# Purchases by category
+```{r, echo = FALSE, message= FALSE}
+
+ggplot(shopping_data, aes(purchase_amount, color = category)) +
+  geom_freqpoly() + labs(title = "Purchases by category", x = "Purchase Amount", y = "Count") + theme(legend.title=element_blank())
+```
+
+
+# What are buyers using as a way of payment?
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(x = payment_method, fill = payment_method)) + geom_bar() + theme(legend.position="none") + labs(title = "Purchases by payment", x = "Payment Method", y = "Count")
+
+```
+From payment I was able to see that credit card was the main form of payment compared to bank transfer which in this day and age who does bank transfers. 
+
+
+# What categories have the best reviews?
+```{r, echo = FALSE}
+ggplot(data = shopping_data, aes(y= review_rating, x = category, fill = category)) + geom_boxplot() + labs(title = "Purchases by payment", x = "Review Rating", y = "Category") + theme(legend.title=element_blank())
+
+```
+AND the last thing I wanted to see was just the reviews on items and what categories people were rating things on. I used the box plot to show the median and was able to see that clothing had the lowest rating. 
+
+
+# Summary
+
+Summary. Although it was AI generated I was able to gather information from the perspective of a retail seller. I was able to see the differences in what was the main selling point what colors were the most popular. I was able to see a lot of things that were would be interesting in the point of view of someone that was making money from understanding their consumer. This data set showed me if I was running a retail store or chain I would want my shops to have accessibility to credit card transactions or having a certain color like silver for men and yellow for women in stock, and having enough of medium sizes. In the end its just catering to your consumer. 
